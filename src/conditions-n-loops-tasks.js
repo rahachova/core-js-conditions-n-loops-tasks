@@ -63,8 +63,127 @@ function getMaxNumber(a, b, c) {
  * {x: 1, y: 1}, {x: 2, y: 8} => false
  * {x: 1, y: 1}, {x: 2, y: 8} => false
  */
-function canQueenCaptureKing(/* queen, king */) {
-  throw new Error('Not implemented');
+function canQueenCaptureKing(queen, king) {
+  function generateMovesToTop({ x, y }) {
+    const result = [];
+    for (let i = y + 1; i <= 8; i += 1) {
+      result.push({
+        x,
+        y: i,
+      });
+    }
+    return result;
+  }
+
+  function generateMovesToBottom({ x, y }) {
+    const result = [];
+    for (let i = y - 1; i >= 1; i -= 1) {
+      result.push({
+        x,
+        y: i,
+      });
+    }
+    return result;
+  }
+
+  function generateMovesLeft({ x, y }) {
+    const result = [];
+    const iterationCycles = x - 1;
+    for (let i = 1; i <= iterationCycles; i += 1) {
+      result.push({
+        x: x - i,
+        y,
+      });
+    }
+    return result;
+  }
+
+  function generateMovesRight({ x, y }) {
+    const result = [];
+    const iterationCycles = 8 - x;
+    for (let i = 1; i <= iterationCycles; i += 1) {
+      result.push({
+        x: x + i,
+        y,
+      });
+    }
+    return result;
+  }
+
+  function generateMovesBottomRight({ x, y }) {
+    const stepsByY = y - 1;
+    const stepsByX = 8 - x;
+    const iterationCycles = Math.min(stepsByY, stepsByX);
+
+    const result = [];
+    for (let i = 1; i <= iterationCycles; i += 1) {
+      result.push({
+        x: x + i,
+        y: y - i,
+      });
+    }
+    return result;
+  }
+
+  function generateMovesBottomLeft({ x, y }) {
+    const stepsByY = y - 1;
+    const stepsByX = x - 1;
+    const iterationCycles = Math.min(stepsByY, stepsByX);
+
+    const result = [];
+    for (let i = 1; i <= iterationCycles; i += 1) {
+      result.push({
+        x: x - i,
+        y: y - i,
+      });
+    }
+    return result;
+  }
+
+  function generateMovesTopLeft({ x, y }) {
+    const stepsByY = 8 - y;
+    const stepsByX = x - 1;
+    const iterationCycles = Math.min(stepsByY, stepsByX);
+
+    const result = [];
+    for (let i = 1; i <= iterationCycles; i += 1) {
+      result.push({
+        x: x - i,
+        y: y + i,
+      });
+    }
+    return result;
+  }
+
+  function generateMovesTopRight({ x, y }) {
+    const stepsByY = 8 - y;
+    const stepsByX = 8 - x;
+    const iterationCycles = Math.min(stepsByY, stepsByX);
+
+    const result = [];
+    for (let i = 1; i <= iterationCycles; i += 1) {
+      result.push({
+        x: x + i,
+        y: y + i,
+      });
+    }
+    return result;
+  }
+
+  const allMoves = [
+    ...generateMovesToTop(queen),
+    ...generateMovesToBottom(queen),
+    ...generateMovesLeft(queen),
+    ...generateMovesRight(queen),
+    ...generateMovesBottomRight(queen),
+    ...generateMovesBottomLeft(queen),
+    ...generateMovesTopLeft(queen),
+    ...generateMovesTopRight(queen),
+  ];
+
+  return !!allMoves.find(({ x, y }) => {
+    return king.x === x && king.y === y;
+  });
 }
 
 /**
@@ -106,8 +225,40 @@ function isIsoscelesTriangle(a, b, c) {
  *  10  => X
  *  26  => XXVI
  */
-function convertToRomanNumerals(/* num */) {
-  throw new Error('Not implemented');
+function convertToRomanNumerals(num) {
+  const values = {
+    1: 'I',
+    2: 'II',
+    3: 'III',
+    4: 'IV',
+    5: 'V',
+    6: 'VI',
+    7: 'VII',
+    8: 'VIII',
+    9: 'IX',
+    10: 'X',
+  };
+  let result = '';
+  let absNum = Math.abs(num);
+  while (absNum >= 10) {
+    absNum /= 10;
+  }
+  const floorNum = Math.floor(absNum);
+
+  const string = `${num}`;
+  if (string.length === 1) {
+    result = values[num];
+  } else if (string.length === 2 && string[1] !== '0') {
+    for (let index = 0; index < floorNum; index += 1) {
+      result += values[10];
+    }
+    result += values[string[1]];
+  } else if (string[1] === '0') {
+    for (let index = 0; index < floorNum; index += 1) {
+      result += values[10];
+    }
+  }
+  return result;
 }
 
 /**
@@ -240,17 +391,25 @@ function isContainNumber(num, digit) {
  *  [1, 2, 3, 4, 5] => -1   => no balance element
  */
 function getBalanceIndex(arr) {
-  if (arr.length === 5) {
-    if (arr[0] + arr[1] === arr[3] + arr[4]) {
-      return 2;
+  if (!arr.length) return -1;
+
+  for (let index = 1; index < arr.length; index += 1) {
+    let sumLeft = 0;
+    let sumRight = 0;
+    for (let leftIndex = 0; leftIndex < index; leftIndex += 1) {
+      sumLeft += arr[leftIndex];
     }
-  } else if (arr.length === 4) {
-    if (arr[0] + arr[1] === arr[3]) {
-      return 2;
+    for (let rightIndex = index + 1; rightIndex < arr.length; rightIndex += 1) {
+      sumRight += arr[rightIndex];
+    }
+    if (sumLeft === sumRight) {
+      return index;
     }
   }
   return -1;
 }
+
+console.log(getBalanceIndex([1, 2, 3, 4, 5, 6, 7, 8, 9]));
 
 /**
  * Generates a spiral matrix of a given size, filled with numbers in ascending order starting from one.
@@ -310,8 +469,34 @@ function rotateMatrix(/* matrix */) {
  *  [2, 9, 5, 9]    => [2, 5, 9, 9]
  *  [-2, 9, 5, -3]  => [-3, -2, 5, 9]
  */
-function sortByAsc(/* arr */) {
-  throw new Error('Not implemented');
+function sortByAsc(arr) {
+  const arrCopy = arr;
+  if (arr.length <= 1) {
+    return arr;
+  }
+
+  const pivot = arr[0];
+  const leftArr = [];
+  const rightArr = [];
+  let leftIndex = 0;
+  let rightIndex = 0;
+
+  for (let i = 1; i < arr.length; i += 1) {
+    if (arr[i] < pivot) {
+      leftArr[leftIndex] = arr[i];
+      leftIndex += 1;
+    } else {
+      rightArr[rightIndex] = arr[i];
+      rightIndex += 1;
+    }
+  }
+
+  const result = [...sortByAsc(leftArr), pivot, ...sortByAsc(rightArr)];
+
+  for (let index = 0; index < result.length; index += 1) {
+    arrCopy[index] = result[index];
+  }
+  return arrCopy;
 }
 
 /**
